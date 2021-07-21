@@ -5,8 +5,6 @@ Import-Module oh-my-posh
 $themesPath = Get-WslPath "$(genv psmodulepath user)/oh-my-posh/3.168.3/themes"
 $randTheme = "'(print (rand-nth (map #(let [s (.getName (io/file %))] (subs s 0 (-> (count s) (- (count \"".omp.json\"")))))  *input*)))'"
 Set-PoshPrompt $(bash -c "ls $themesPath | bb -i $randTheme")
-# Set-PoshPrompt -Theme space+tips
-# $Global:PoshSettings.EnableToolTips = $true
 
 function ddg {
     param(

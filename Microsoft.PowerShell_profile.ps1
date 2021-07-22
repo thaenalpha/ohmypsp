@@ -69,3 +69,5 @@ sa stsv Start-Service
 $themesPath = Get-WslPath "$(genv psmodulepath user)/oh-my-posh/3.168.3/themes"
 $randTheme = "'(print (#(subs % 0 (-> (count %) (- (count \"".omp.json\"")))) (.getName (io/file (rand-nth *input*)))))'"
 Set-PoshPrompt $(bash -c "ls $themesPath | bb -i $randTheme")
+
+sa _ sudo

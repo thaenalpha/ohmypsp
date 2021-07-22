@@ -2,9 +2,6 @@ Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
 . $env:ChocolateyInstall\helpers\functions\Get-EnvironmentVariable.ps1
 Import-Module posh-git
 Import-Module oh-my-posh
-$themesPath = Get-WslPath "$(genv psmodulepath user)/oh-my-posh/3.168.3/themes"
-$randTheme = "'(print (rand-nth (map #(let [s (.getName (io/file %))] (subs s 0 (-> (count s) (- (count \"".omp.json\"")))))  *input*)))'"
-Set-PoshPrompt $(bash -c "ls $themesPath | bb -i $randTheme")
 
 function ddg {
     param(
@@ -68,3 +65,7 @@ sa psc PowerShell-Config
 sa npc Notepad-Clip
 sa ssv Set-Service
 sa stsv Start-Service
+
+$themesPath = Get-WslPath "$(genv psmodulepath user)/oh-my-posh/3.168.3/themes"
+$randTheme = "'(print (#(subs % 0 (-> (count %) (- (count \"".omp.json\"")))) (.getName (io/file (rand-nth *input*)))))'"
+Set-PoshPrompt $(bash -c "ls $themesPath | bb -i $randTheme")

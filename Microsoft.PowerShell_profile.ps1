@@ -24,6 +24,8 @@ function Choco-Search { param( $1, $f ) c search $1 --pre $f }
 function Scoop-Search { param( $1, $f ) s search $1 $f }
 function Winget-Install { param( $1, $f ) w install $1 $f }
 function Scoop-Install { param( $1, $f ) s install $1 $f }
+function Winget-Uninstall { param( $1, $f ) w uninstall $1 $f }
+function Scoop-Uninstall { param( $1, $f ) s uninstall $1 $f }
 function Winget-Upgrade { param( $1, $f ) w upgrade $1 $f }
 function Scoop-Upgrade { param( $1, $f ) s update $1 $f }
 function Winget-UpgradeAll { param($f) w upgrade --all $f }
@@ -45,8 +47,10 @@ Set-Alias ws Winget-Search
 Set-Alias cs Choco-Search
 Set-Alias ss Scoop-Search
 Set-Alias winst Winget-Install
+Set-Alias wuninst Winget-Uninstall
 Set-Alias Choco-Install cinst
 Set-Alias sinst Scoop-Install
+Set-Alias suninst Scoop-Uninstall
 Set-Alias wup Winget-Upgrade
 Set-Alias Choco-Upgrade cup
 Set-Alias sup Scoop-Upgrade

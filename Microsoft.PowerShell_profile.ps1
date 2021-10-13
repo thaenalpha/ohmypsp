@@ -14,7 +14,7 @@ function Get-WslPath {
     Else {$path_parts -join "/"}
 }
 
-# Linux programs
+# Functions to call WSL programs
 function emacs {param($1) ubuntu run zsh -l ~/.oh-my-zsh/plugins/emacs/emacsclient.sh $(Get-WslPath $1)}
 function vi { param($1) ubuntu run vi $(Get-WslPath $1)}
 function howdoi {param([Parameter(ValueFromRemainingArguments)]

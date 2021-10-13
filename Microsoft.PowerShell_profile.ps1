@@ -15,10 +15,10 @@ function Get-WslPath {
     If ($path_parts[0] -match '.*:'){cmd /c set FORWSL=$1 "&" SET WSLENV=%WSLENV%:FORWSL/up "&" ubuntu run echo '$FORWSL'}
     Else {$path_parts -join "/"}
 }
-function emacs {param($1) ubuntu run emacs $(Get-WslPath $1)}
+function emacs {param($1) ubuntu run /home/$env:username/.oh-my-zsh/plugins/emacs/emacsclient.sh $(Get-WslPath $1)}
 function vi { param($1) ubuntu run vi $(Get-WslPath $1)}
 function howdoi {param([Parameter(ValueFromRemainingArguments)]
-        [object[]] $_args) ubuntu run /home/nopan/.local/bin/howdoi -ac $_args}
+        [object[]] $_args) ubuntu run /home/$env:username/.local/bin/howdoi -ac $_args}
 function Winget-Search { param( $1, $f ) w search $1 $f }
 function Choco-Search { param( $1, $f ) c search $1 --pre $f }
 function Scoop-Search { param( $1, $f ) s search $1 $f }
@@ -36,7 +36,29 @@ function Get-UserVariables {reg query HKCU\environment}
 function Get-SystemVariables {reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"}
 function PowerShell-Config {e $PROFILE}
 function Notepad-Clip {np $env:USERPROFILE\clip}
+Function Set-WallPaper($Image) {
+    Add-Type -TypeDefinition @"
+    using System;
+    using System.Runtime.InteropServices;
 
+    public class Params
+    {
+        [DllImport("User32.dll",CharSet=CharSet.Unicode)]
+        public static extern int SystemParametersInfo (Int32 uAction,
+                                                       Int32 uParam,
+                                                       String lpvParam,
+                                                       Int32 fuWinIni);
+    }
+"@
+
+    $SPI_SETDESKWALLPAPER = 0x0014
+    $UpdateIniFile = 0x01
+    $SendChangeEvent = 0x02
+
+    $fWinIni = $UpdateIniFile -bor $SendChangeEvent
+
+    $ret = [Params]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $Image, $fWinIni)
+}
 Set-Alias -Name np -Value C:\Windows\notepad.exe
 Set-Alias -Name ff -Value firefox-nightly.exe
 Set-Alias -Name mse -Value msedge.exe
@@ -61,6 +83,7 @@ Set-Alias .. cd..
 Set-Alias l ls
 Set-Alias genv Get-EnvironmentVariable
 Set-Alias sa Set-Alias
+sa wpwsh powershell
 sa ga Get-Alias
 sa sst Scoop-Status
 sa e emacs
@@ -69,9 +92,9 @@ sa psc PowerShell-Config
 sa npc Notepad-Clip
 sa ssv Set-Service
 sa stsv Start-Service
+sa _ sudo
 
 $themesPath = Get-WslPath "$(genv psmodulepath user)/oh-my-posh/3.168.3/themes"
-$randTheme = "'(print (#(subs % 0 (-> (count %) (- (count \"".omp.json\"")))) (.getName (io/file (rand-nth *input*)))))'"
+$randTheme = "'(print (#(subs % 0 (-> (count %) (- (count \"".omp.json\""))))
+                        (rand-nth *input*)))'"
 Set-PoshPrompt $(bash -c "ls $themesPath | bb -i $randTheme")
-
-sa _ sudo

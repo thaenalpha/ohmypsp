@@ -1,24 +1,28 @@
-Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
-. $env:ChocolateyInstall\helpers\functions\Get-EnvironmentVariable.ps1
-Import-Module posh-git
-Import-Module oh-my-posh
-
+# Search engine
 function ddg {
     param(
-	    [Parameter(ValueFromRemainingArguments)]
+        [Parameter(ValueFromRemainingArguments)]
         [object[]] $_args
     ) ff https://duckduckgo.com/?q="$_args"
 }
+
 function Get-WslPath {
+    # WSL Path translate
     param($1)
     $path_parts=($1 -split "\\")
     If ($path_parts[0] -match '.*:'){cmd /c set FORWSL=$1 "&" SET WSLENV=%WSLENV%:FORWSL/up "&" ubuntu run echo '$FORWSL'}
     Else {$path_parts -join "/"}
 }
-function emacs {param($1) ubuntu run /home/$env:username/.oh-my-zsh/plugins/emacs/emacsclient.sh $(Get-WslPath $1)}
+
+# Linux programs
+function emacs {param($1) ubuntu run zsh -l ~/.oh-my-zsh/plugins/emacs/emacsclient.sh $(Get-WslPath $1)}
 function vi { param($1) ubuntu run vi $(Get-WslPath $1)}
 function howdoi {param([Parameter(ValueFromRemainingArguments)]
-        [object[]] $_args) ubuntu run /home/$env:username/.local/bin/howdoi -ac $_args}
+        [object[]] $_args) wsl zsh -lc "~/.local/bin/howdoi -ac $_args"}
+function git {param([Parameter(ValueFromRemainingArguments)]
+        [object[]] $_args) wsl zsh -lc "git $_args"}
+
+# Prepare functions to set aliases
 function Winget-Search { param( $1, $f ) w search $1 $f }
 function Choco-Search { param( $1, $f ) c search $1 --pre $f }
 function Scoop-Search { param( $1, $f ) s search $1 $f }
@@ -36,7 +40,9 @@ function Get-UserVariables {reg query HKCU\environment}
 function Get-SystemVariables {reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"}
 function PowerShell-Config {e $PROFILE}
 function Notepad-Clip {np $env:USERPROFILE\clip}
-Function Set-WallPaper($Image) {
+
+function Set-WallPaper($Image) {
+    # Script to set Windows background
     Add-Type -TypeDefinition @"
     using System;
     using System.Runtime.InteropServices;
@@ -59,6 +65,7 @@ Function Set-WallPaper($Image) {
 
     $ret = [Params]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $Image, $fWinIni)
 }
+
 Set-Alias -Name np -Value C:\Windows\notepad.exe
 Set-Alias -Name ff -Value firefox-nightly.exe
 Set-Alias -Name mse -Value msedge.exe
@@ -81,8 +88,7 @@ Set-Alias cupa Choco-UpgradeAll
 Set-Alias supa Scoop-UpgradeAll
 Set-Alias .. cd..
 Set-Alias l ls
-Set-Alias genv Get-EnvironmentVariable
-Set-Alias sa Set-Alias
+Set-Alias sa Set-Alias          # Short form
 sa wpwsh powershell
 sa ga Get-Alias
 sa sst Scoop-Status
@@ -94,6 +100,16 @@ sa ssv Set-Service
 sa stsv Start-Service
 sa _ sudo
 
+# Chocolatey profile
+$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+if (Test-Path($ChocolateyProfile)) {
+    Import-Module "$ChocolateyProfile"
+    . $env:ChocolateyInstall\helpers\functions\Get-EnvironmentVariable.ps1
+    Set-Alias genv Get-EnvironmentVariable
+}
+
+# Style prompt
+Import-Module oh-my-posh
 $themesPath = Get-WslPath "$(genv psmodulepath user)/oh-my-posh/3.168.3/themes"
 $randTheme = "'(print (#(subs % 0 (-> (count %) (- (count \"".omp.json\""))))
                         (rand-nth *input*)))'"
